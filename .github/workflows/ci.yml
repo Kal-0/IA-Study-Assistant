@@ -1,10 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
 jobs:
   tests:
     runs-on: ubuntu-latest
     env:
       GEMMA3_URL: ${{ secrets.GEMMA3_URL }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      # outras vars que sua app usa
 
     steps:
       - name: Checkout código
@@ -19,7 +30,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+          pip install pytest python-dotenv
 
       - name: Rodar testes
         run: pytest
