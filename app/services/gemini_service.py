@@ -1,11 +1,12 @@
 import os
 import httpx
 import asyncio
+from app.config_env import get_env
 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 def get_api_key():
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = get_env("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY environment variable not set.")
     return api_key

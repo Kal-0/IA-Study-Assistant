@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from dotenv import load_dotenv
 from app.services.gemini_service import call_gemini_api
 from app.services.local_gemma3_service import call_local_gemma_api
 
@@ -12,8 +11,7 @@ SYSTEM_PROMPT = (
     "Responda de forma clara, organizada e didática, mantendo um tom acessível e acadêmico ao mesmo tempo."
 )
 
-# Carrega variáveis do arquivo .env automaticamente
-load_dotenv()
+
 
 app = FastAPI(title="IsCoolGPT - IA Assistente de Estudos ")
 

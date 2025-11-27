@@ -1,9 +1,10 @@
 import os
 import httpx
+from app.config_env import get_env
 
 # Tenta pegar a URL da variável de ambiente. 
 # Se não existir (ex: rodando local sem config), usa o localhost.
-LOCAL_GEMMA_URL = os.getenv("LOCAL_WORKER_URL", "http://localhost:8009") 
+LOCAL_GEMMA_URL = get_env("GEMMA3_URL") or "http://localhost:8009"
 
 # Garante que o endpoint /generate esteja no final
 if not LOCAL_GEMMA_URL.endswith("/generate"):
