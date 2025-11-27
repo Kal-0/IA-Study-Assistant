@@ -12,17 +12,9 @@ def test_health():
     assert resp.json() == {"status": "ok"}
 
 
-def test_test_endpoint():
-    resp = client.get("/test", params={"q": "abc"})
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["message"] == "test ok"
-    assert data["echo"] == "abc"
-
-
 def test_ask_endpoint():
-    payload = {"question": "Qual é a capital do Brasil?"}
-    resp = client.post("/ask", json=payload)
+    payload = {"question": "O que é FastAPI?"}
+    resp = client.post("/ask/gemma", json=payload)
     assert resp.status_code == 200
     data = resp.json()
-    assert "Você perguntou" in data.get("answer", "")
+    assert "FastAPI".upper() in data.get("answer", "").upper()

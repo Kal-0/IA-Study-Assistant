@@ -1,0 +1,9 @@
+services:
+  iscool-api:
+    build: .
+    container_name: iscool-api-container
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    restart: unless-stopped
