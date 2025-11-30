@@ -9,3 +9,7 @@ tests/
 docs/
 .vscode/
 .idea/
+venv/
+.venv/
+frontend/node_modules/
+frontend/dist/
