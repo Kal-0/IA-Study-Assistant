@@ -16,4 +16,4 @@ O projeto foi desenvolvido como parte do **Projeto Final Cloud 25.2**, demonstra
 
 ## 🧠 Objetivo
 
-> Criar um assistente de estudos inteligente, modular e escalável, que possa responder dúvidas acadêmicas.
+> Criar um assistente de estudos inteligente, modular e escalável, que possa responder dúvidas acadêmicas. 
