@@ -21,16 +21,33 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
+      # 1) FRONTEND: builda o React/Vite e copia para static/
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências do frontend e gerar build
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+          # garantir que a pasta static exista na raiz do repo
+          mkdir -p ../static
+          # copiar o conteúdo do dist (index.html + assets/) para static/
+          cp -r dist/* ../static/
+
+      # 2) BACKEND: instalar dependências Python e rodar testes
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Instalar dependências
+      - name: Instalar dependências Python
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest python-dotenv
 
-      - name: Rodar testes
+      - name: Rodar testes backend
         run: pytest
