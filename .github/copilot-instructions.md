@@ -1,41 +1,78 @@
-## Copilot / AI-agent instructions for IsCoolGPT
+# GitHub Copilot Instructions for IsCoolGPT
 
-This file gives focused, actionable guidance for AI coding agents working on the IsCoolGPT repository.
+These instructions describe how GitHub Copilot should behave inside this repository.
 
-High level
-- IsCoolGPT is an LLM-backed study assistant (see `README.md`). The architecture is a small web API (FastAPI is referenced in the README), containerized with Docker and intended to be deployed via GitHub Actions to AWS (ECR + ECS).
-- Primary responsibilities for an agent: implement or modify the FastAPI backend endpoints, create/update Dockerfile and CI workflow, and wire LLM integration (Gemini API) safely.
+## Project overview
 
-Where to look first
-- `README.md` — project overview and target infra (FastAPI, Docker, GitHub Actions, AWS ECR/ECS).
-- Look for these expected files/locations; they may be missing in this repo snapshot — if they are missing, create them with the standard conventions below and ask the maintainer for preferences:
-  - `app/` or `src/` containing FastAPI app, commonly `main.py` or `app/main.py`.
-  - `requirements.txt` or `pyproject.toml` for Python deps.
-  - `Dockerfile` at repo root for containerization.
-  - `.github/workflows/` for CI/CD (deploy workflow should reference ECR/ECS).
+- Backend: Python 3.11, FastAPI, httpx, Pydantic, Uvicorn
+- Frontend: React + Vite (JavaScript), `marked` for Markdown rendering
+- Infra: Docker (multi-stage), Docker Compose, Render (Docker deploy), GitHub Actions CI
+- Purpose: Study assistant that calls two LLM providers:
+  - Gemma 3 worker via `GEMMA3_URL`
+  - Gemini 2.0 Flash via `GEMINI_API_KEY`
 
-Project-specific patterns & conventions
-- README language and naming: repository uses Portuguese in README and calls the assistant "IsCoolGPT" — prefer descriptive Portuguese variable/doc strings where appropriate, but keep code comments English if the project already uses English code comments.
-- Security: Gemini API keys or other secrets must be stored in GitHub Actions secrets or environment variables — never hardcode credentials.
-- Minimal, modular API: prefer small, testable endpoints (single responsibility). When adding routes, follow a module-per-feature pattern (e.g., `app/routes/qa.py`).
+## General style guidelines
 
-Examples (concrete guidance)
-- When creating an API entrypoint, add `app/main.py` with a FastAPI instance and an example route:
-  - Provide an HTTP POST `/query` or `/ask` that accepts JSON { "question": "..." } and returns an LLM-generated answer.
-- When adding Docker support, create a `Dockerfile` that installs requirements and runs `uvicorn app.main:app --host 0.0.0.0 --port 8080`.
-- When adding CI/CD, create `.github/workflows/deploy.yml` that builds the Docker image, pushes to ECR, and updates ECS service — follow the README's intent and prompt the maintainer if region/account details are missing.
+- Default language for comments, docstrings and README-like documentation: **Português do Brasil**.
+- Keep code clean and explicit; avoid over-abstractions for small features.
+- Prefer clear, descriptive names in **snake_case** for Python and **camelCase** for JavaScript.
+- When adding new modules, respect the existing structure:
+  - Backend code under `app/`
+  - React code under `frontend/src/`
+  - Tests under `tests/`.
 
-What to avoid / agent guardrails
-- Do not commit any secret values (API keys, AWS credentials). If you need to provide an example, use placeholder names like `GEMINI_API_KEY` or `AWS_ECR_REPO` and reference environment variables.
-- Do not assume file names—verify by searching the repo. If files are missing, create minimal stubs and add a short TODO comment referencing the `README.md` and ask the user for confirmation.
+## Backend guidelines (FastAPI)
 
-If you change behavior
-- Add or update a small test (pytest) under `tests/` that exercises the new endpoint or function. If tests don't exist, create one simple smoke test that starts the FastAPI TestClient and asserts a 200 response.
-- Update `README.md` with a short usage snippet showing how to run locally (example: `docker build -t iscoolgpt . && docker run -p 8080:8080 iscoolgpt`).
+- Use async endpoints and `httpx.AsyncClient` for external HTTP calls.
+- Use Pydantic models (v1 style) for request/response schemas.
+- Do **not** hard-code secrets or URLs; always read them from environment variables
+  (optionally using helpers already present in the project).
+- When adding new endpoints, remember to:
+  - Document them briefly via docstrings.
+  - Write tests in `tests/` using `TestClient`.
+- Keep error messages informative but not verbose with internal details.
+- Prefer small service functions in `app/services/` instead of putting logic directly
+  inside route handlers.
 
-When in doubt
-- If the repo lacks implementation files, ask the maintainer: do they want a Python/FastAPI implementation, or are they expecting a prototype with only docs and workflows?
-- Always reference `README.md` when deciding infra choices (CI provider, AWS target). If values are missing for deployment (AWS account, region, repo name), create placeholders and clearly mark them as TODO.
+## Frontend guidelines (React + Vite)
 
-Feedback
-- After applying changes, briefly describe the edits and ask which piece to implement next (API endpoint, Dockerfile, or CI workflow).
+- Components live under `frontend/src/`:
+  - Keep `App.jsx` as a high-level composition component.
+  - Extract reusable UI pieces into small components.
+- Use functional components and React hooks (`useState`, `useEffect`) only.
+- Keep the chat behavior consistent:
+  - Messages have fields `{ id, role, text, modelId }`.
+  - Chat history is stored in `localStorage` using the existing storage key.
+- Use the existing `BASE_API_URL` constant and model configuration list when
+  introducing new models or endpoints.
+- When modifying keyboard behavior, preserve:
+  - **Enter** -> send message
+  - **Shift+Enter** -> new line
+
+## Testing
+
+- Use `pytest` for backend tests.
+- Follow the existing pattern in `tests/test_api.py` when adding tests for new endpoints.
+- Tests should be deterministic and should not depend on external LLMs when possible;
+  prefer mocking HTTP calls or providing fallbacks.
+
+## Docker / DevOps
+
+- Do not break the multi-stage Dockerfile structure:
+  - Stage 1: build frontend (Vite)
+  - Stage 2: runtime image for FastAPI + static files.
+- If you change the Dockerfile, make sure it still works with `docker compose up --build`.
+- Avoid changing the name of the GitHub Actions workflow file (`ci.yml`)
+  and its main job unless strictly necessary.
+
+## What Copilot should avoid
+
+- Do not suggest committing `.env`, API keys or secrets.
+- Do not introduce new cloud providers or services unless explicitly requested.
+- Do not remove CORS configuration or security-related environment variable usage.
+- Avoid generating massive boilerplate; focus on what is clearly relevant for IsCoolGPT.
+
+## When in doubt
+
+- Prefer small, incremental changes that fit the existing architecture.
+- Follow the conventions already present in the project before introducing new ones.
