@@ -16,20 +16,30 @@
   box-sizing: border-box;
 }
 
-body {
+/* ✅ garantir altura total e tirar margens globais */
+html,
+body,
+#root {
+  height: 100%;
   margin: 0;
+}
+
+body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     sans-serif;
   background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
   color: var(--text);
 }
 
+/* ✅ container central ocupando a tela toda */
 .page {
   min-height: 100vh;
+  height: 100%;
   display: flex;
   justify-content: center;
 }
 
+/* ✅ layout em coluna + altura limitada para permitir sticky */
 .container {
   width: 100%;
   max-width: 960px;
@@ -37,13 +47,22 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: 100vh;       /* chave p/ sticky funcionar no contexto do card */
+  max-height: 100vh;
 }
 
+/* ✅ header sticky de verdade */
 .header {
+  position: sticky;
+  top: 0;                         /* ponto onde ele “gruda” */
+  z-index: 10;
+  background: var(--bg);          /* fundo sólido pra não ficar transparente */
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .title {
@@ -122,7 +141,7 @@ button.secondary:not(:disabled):hover {
 }
 
 .chat-window {
-  flex: 1;
+  flex: 1; /* ocupa o espaço entre header e composer */
   min-height: 350px;
   background: linear-gradient(
     to bottom,
@@ -132,7 +151,7 @@ button.secondary:not(:disabled):hover {
   border-radius: 1rem;
   border: 1px solid var(--border);
   padding: 1rem;
-  overflow-y: auto;
+  overflow-y: auto; /* rolagem aqui */
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

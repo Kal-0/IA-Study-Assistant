@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { marked } from "marked";
 
 const BASE_API_URL = "https://ia-study-assistant.onrender.com";
-
 const STORAGE_KEY = "iscool_chat_history";
 
 marked.setOptions({
@@ -99,7 +98,9 @@ function MessageList({ messages }) {
         return (
           <div
             key={msg.id}
-            className={`message ${msg.role === "user" ? "user" : "assistant"}`}
+            className={`message ${
+              msg.role === "user" ? "user" : "assistant"
+            }`}
           >
             <div className="meta">
               {msg.role === "user"
@@ -122,12 +123,25 @@ function MessageList({ messages }) {
 
 function Composer({ value, onChange, onSubmit, loading, statusText }) {
   return (
-    <form className="composer" onSubmit={onSubmit}>
+    <form
+      className="composer"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+    >
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Digite sua pergunta aqui..."
         disabled={loading}
+        onKeyDown={(e) => {
+          // Enter = enviar | Shift+Enter = quebra de linha
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            onSubmit();
+          }
+        }}
       />
       <div className="composer-footer">
         <div className="status">
@@ -187,8 +201,7 @@ function App() {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit() {
     const question = input.trim();
     if (!question || loading) return;
 
@@ -250,6 +263,7 @@ function App() {
   return (
     <div className="page">
       <main className="container">
+        {/* HEADER estático (fica acima da área rolável do histórico) */}
         <header className="header">
           <div className="title">
             <h1>
@@ -267,8 +281,10 @@ function App() {
           />
         </header>
 
+        {/* HISTÓRICO – essa parte rola, o header fica separado */}
         <MessageList messages={messages} />
 
+        {/* INPUT */}
         <Composer
           value={input}
           onChange={setInput}
